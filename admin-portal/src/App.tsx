@@ -98,12 +98,7 @@ const AdminPortal: React.FC = () => {
       // Simple smoothing: use midpoint control
       // path += ` L ${points[i+1][0]},${points[i+1][1]}`; 
 
-      // Let's try quadratic
-      const x_mid = (points[i][0] + points[i + 1][0]) / 2;
-      const y_mid = (points[i][1] + points[i + 1][1]) / 2;
-      const cp_x1 = (x_mid + points[i][0]) / 2;
-      const cp_x2 = (x_mid + points[i + 1][0]) / 2;
-
+      // Removed unused Bezier logic variables for lint fix
       path += ` Q ${points[i + 1][0]},${points[i + 1][1]} ${points[i + 1][0]},${points[i + 1][1]}`; // Linear fallback effectively
       // Actually for simplicity in this context, straight lines or standard L is safest visual
     }
@@ -160,12 +155,8 @@ const AdminPortal: React.FC = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [newProductName, setNewProductName] = useState('');
   const [newProductBrand, setNewProductBrand] = useState('');
-  const [newProductPrice, setNewProductPrice] = useState('');
   const [newProductCategory, setNewProductCategory] = useState<ProductCategory | ''>('');
-  const [newProductDescription, setNewProductDescription] = useState('');
   const [newProductIsAvailable, setNewProductIsAvailable] = useState(true);
-  const [imageInputMode, setImageInputMode] = useState<'upload' | 'url'>('upload');
-  const [imageUrlInput, setImageUrlInput] = useState('');
 
   // Service State
   const [serviceTitle, setServiceTitle] = useState('');
@@ -264,6 +255,76 @@ const AdminPortal: React.FC = () => {
     setIsEditingUpi(false);
   };
 
+  const handleExportCSV = () => {
+    const headers = ['ID', 'Date', 'Customer', 'Mobile', 'Amount', 'Status'];
+    const rows = state.bookings.map((b: any) => [
+      b.id,
+      new Date(b.createdAt).toLocaleDateString(),
+      b.shippingAddress?.fullName || 'Unknown',
+      b.shippingAddress?.phone || 'No Contact',
+      b.totalAmount,
+      b.status
+    ]);
+
+    const csvContent = "data:text/csv;charset=utf-8,"
+      + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "bookings_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handlePrintManifest = () => {
+    const printWindow = window.open('', '', 'width=800,height=600');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Order Manifest</title>
+            <style>
+              body { font-family: sans-serif; padding: 20px; }
+              table { border-collapse: collapse; width: 100%; }
+              th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+              th { background-color: #f2f2f2; }
+              h1 { margin-bottom: 20px; }
+            </style>
+          </head>
+          <body>
+            <h1>Order Manifest - ${new Date().toLocaleDateString()}</h1>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Customer</th>
+                  <th>Details</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${state.bookings.map((b: any) => `
+                  <tr>
+                    <td>#${b.id ? b.id.toString().slice(-6).toUpperCase() : 'UNKNOWN'}</td>
+                    <td>${b.shippingAddress?.fullName || 'Unknown'}<br><small>${b.shippingAddress?.phone}</small></td>
+                    <td>${b.items?.map((i: any) => i.name || i.product?.name).join(', ') || 'Service Request'}</td>
+                    <td>₹${b.totalAmount}</td>
+                    <td>${b.status}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
+  };
+
   const handleAddSpec = () => {
     setNewProductSpecs([...newProductSpecs, { key: '', value: '' }]);
   };
@@ -309,7 +370,9 @@ const AdminPortal: React.FC = () => {
 
 
   // Stats calculation
-  const totalRevenue = state.bookings.reduce((sum: number, b: any) => b.status === BookingStatus.COMPLETED ? sum + b.totalAmount : sum, 0);
+  const totalRevenue = state.bookings.reduce((sum: number, b: any) =>
+    (b.status === BookingStatus.COMPLETED || b.status === BookingStatus.DELIVERED) ? sum + (b.totalAmount || 0) : sum
+    , 0);
   const pendingOrders = state.bookings.filter((b: any) => b.status === BookingStatus.PENDING).length;
 
   const handleStatusChange = (bookingId: string, status: BookingStatus) => {
@@ -719,8 +782,8 @@ const AdminPortal: React.FC = () => {
                 <p className="text-slate-400 text-xs lg:text-sm font-bold">Manage customer requests and repair jobs.</p>
               </div>
               <div className="flex gap-2 lg:gap-4 w-full md:w-auto">
-                <button className="flex-1 md:flex-none px-4 py-2 lg:px-6 lg:py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl lg:rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-300">Export CSV</button>
-                <button className="flex-1 md:flex-none px-4 py-2 lg:px-6 lg:py-3 bg-emerald-500 text-white rounded-xl lg:rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20">Print Manifest</button>
+                <button onClick={handleExportCSV} className="flex-1 md:flex-none px-4 py-2 lg:px-6 lg:py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl lg:rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-300">Export CSV</button>
+                <button onClick={handlePrintManifest} className="flex-1 md:flex-none px-4 py-2 lg:px-6 lg:py-3 bg-emerald-500 text-white rounded-xl lg:rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20">Print Manifest</button>
               </div>
             </div>
             <div className="hidden md:block overflow-x-auto">
@@ -738,7 +801,7 @@ const AdminPortal: React.FC = () => {
                   {state.bookings.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((booking: any) => (
                     <tr key={booking.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group">
                       <td className="px-10 py-8">
-                        <div className="font-mono text-xs text-emerald-500 font-bold mb-1">#{booking.id}</div>
+                        <div className="font-mono text-xs text-emerald-500 font-bold mb-1">#{booking.id ? booking.id.toString().slice(-6).toUpperCase() : 'UNKNOWN'}</div>
                         <div className="text-xs text-slate-400 font-bold">{new Date(booking.createdAt).toLocaleDateString()}</div>
                       </td>
                       <td className="px-10 py-8">
