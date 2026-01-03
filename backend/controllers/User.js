@@ -204,15 +204,16 @@ export const uploadProfileImage = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { fullname, email, phone, password } = req.body;
+    const { fullname, name, email, phone, mobile, password, address } = req.body;
     const userId = req.user.id;
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (fullname) user.fullname = fullname;
+    if (fullname || name) user.fullname = fullname || name;
     if (email) user.email = email;
-    if (phone) user.phone = phone;
+    if (phone || mobile) user.phone = phone || mobile;
+    if (address) user.address = address;
 
     if (password) {
       user.password = await bcrypt.hash(password, 10);

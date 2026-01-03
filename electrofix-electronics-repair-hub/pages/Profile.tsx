@@ -22,14 +22,18 @@ const Profile: React.FC = () => {
 
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleUpdate = (e: React.FormEvent) => {
+  const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    setTimeout(() => {
-      updateUserProfile(formData);
-      setIsSaving(false);
+    try {
+      await updateUserProfile(formData);
       alert('Profile updated successfully!');
-    }, 500);
+    } catch (error) {
+      console.error(error);
+      alert('Failed to update profile. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleLogout = () => {
