@@ -1,0 +1,7 @@
+{
+  "name": "ElectroFix - Electronics & Repair Hub",
+  "description": "A comprehensive e-commerce platform for new and used electronics, including repair service bookings and a manual QR-based payment system.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
