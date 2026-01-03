@@ -109,7 +109,8 @@ export const placeOrder = async (req, res) => {
             items,
             shippingAddress, // Ensure Frontend sends this structure matching schema
             totalAmount,
-            paymentMethod: paymentMethod || 'COD'
+            paymentMethod: paymentMethod || 'COD',
+            paymentScreenshot: req.body.paymentScreenshot
         });
 
         res.status(201).json({

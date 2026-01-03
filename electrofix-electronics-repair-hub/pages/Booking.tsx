@@ -72,6 +72,19 @@ const Booking: React.FC = () => {
   };
 
   const handleConfirmBooking = async () => {
+    let uploadedScreenshotUrl = undefined;
+    if (formData.screenshot) {
+      // We need to import uploadFile function. It is exported from storage.ts.
+      // But wait, can we assume it works?
+      // Let's rely on addBooking to handle it? No, addBooking takes a URL string.
+      // We need to upload here first.
+      const { uploadFile } = await import('../services/storage');
+      uploadedScreenshotUrl = await uploadFile(formData.screenshot);
+      if (!uploadedScreenshotUrl && formData.screenshot) {
+        alert("Screenshot upload failed. Proceeding without it."); // Optional: fail hard or soft
+      }
+    }
+
     const bookingId = 'B' + Math.random().toString(36).substr(2, 9).toUpperCase();
 
     await addBooking({
@@ -88,7 +101,7 @@ const Booking: React.FC = () => {
         price: i.product!.price
       })) : undefined,
       notes: formData.notes,
-      paymentScreenshot: formData.screenshotPreview || undefined,
+      paymentScreenshot: uploadedScreenshotUrl || undefined,
       status: BookingStatus.PENDING,
       createdAt: Date.now(),
       totalAmount

@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+export const BASE_URL = 'http://localhost:5000';
+
 const api = axios.create({
-    baseURL: 'http://localhost:5000/api', // Shared backend
+    baseURL: `${BASE_URL}/api`, // Shared backend
     headers: {
         'Content-Type': 'application/json',
     },

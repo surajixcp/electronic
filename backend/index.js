@@ -8,6 +8,7 @@ import cartRoutes from "./routes/Cart.js";
 import orderRoutes from "./routes/Order.js";
 import serviceRoutes from "./routes/Service.js";
 import adminRoutes from "./routes/Admin.js";
+import uploadRoutes from "./routes/Upload.js";
 
 dotenv.config();
 connectDB();
@@ -24,6 +25,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/order", orderRoutes);
 app.use("/api/service", serviceRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/upload", uploadRoutes);
 
 app.get("/", (req, res) => {
   res.send("E-Commerce Backend Running 🚀");

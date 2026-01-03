@@ -10,7 +10,6 @@ import {
   Trash2,
   Edit3,
   Info,
-  TrendingUp,
   Users,
   User,
   ArrowUpRight,
@@ -18,7 +17,6 @@ import {
   Search,
   ChevronRight,
   Activity,
-  Zap,
   DollarSign,
   Clock,
   LogOut,
@@ -30,6 +28,7 @@ import {
   ReceiptText
 } from 'lucide-react';
 import { subscribe, getAppState, saveAppState, updateBookingStatus, logoutUser, updateUserProfile, fetchInitialData, uploadUserAvatar, createServiceApi, deleteServiceApi, updateServiceApi, fetchServicesFromApi, addProduct, updateProduct, deleteProduct, fetchProductsFromApi, deleteBooking, verifyOrderPayment, uploadOrderInvoice, fetchUsersFromApi } from './services/storage';
+import { BASE_URL } from './services/api';
 import { BookingStatus, type Product, type RepairService, ProductCondition, ProductCategory } from './types';
 import Login from './Login';
 
@@ -1690,7 +1689,11 @@ const AdminPortal: React.FC = () => {
               <h3 className="text-2xl font-black mb-6 dark:text-white">Verify Payment</h3>
 
               <div className="bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 mb-6">
-                <img src={viewingPayment.paymentScreenshot} alt="Payment Proof" className="w-full h-auto rounded-xl object-contain max-h-[60vh]" />
+                <img
+                  src={viewingPayment.paymentScreenshot.startsWith('http') ? viewingPayment.paymentScreenshot : `${BASE_URL}${viewingPayment.paymentScreenshot}`}
+                  alt="Payment Proof"
+                  className="w-full h-auto rounded-xl object-contain max-h-[60vh]"
+                />
               </div>
 
               <div className="flex gap-4">
@@ -1701,13 +1704,14 @@ const AdminPortal: React.FC = () => {
                   Close
                 </button>
                 <button
-                  onClick={() => {
-                    handleStatusChange(viewingPayment.id, BookingStatus.CONFIRMED);
+                  onClick={async () => {
+                    await verifyOrderPayment(viewingPayment.id);
                     setViewingPayment(null);
+                    window.location.reload();
                   }}
                   className="flex-[2] py-4 bg-emerald-500 text-white rounded-2xl font-black shadow-xl shadow-emerald-500/20"
                 >
-                  Confirm Payment & Order
+                  Confirm Payment & Verify
                 </button>
               </div>
             </div>

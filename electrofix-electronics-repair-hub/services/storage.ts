@@ -333,7 +333,8 @@ export const addBooking = async (booking: Omit<Booking, 'userId'>) => {
         paymentMethod: 'COD',
         serviceId: booking.serviceId,
         productId: booking.productId,
-        items: booking.items
+        items: booking.items,
+        paymentScreenshot: booking.paymentScreenshot
       };
 
       await api.post('/order', payload);
@@ -486,12 +487,14 @@ export const clearCart = async () => {
 
 export const uploadFile = async (file: File): Promise<string | null> => {
   const formData = new FormData();
-  formData.append('file', file);
+  formData.append('image', file); // Backend expects 'image' key
   try {
     const res = await api.post('/upload', formData, {
+      // Axios sets Content-Type to multipart/form-data automatically with correct boundary when data is FormData
       headers: { 'Content-Type': 'multipart/form-data' }
     });
-    return res.data.url;
+    // Backend returns { image: '/uploads/...' }
+    return res.data.image;
   } catch (e) {
     console.error("Upload failed", e);
     return null;
