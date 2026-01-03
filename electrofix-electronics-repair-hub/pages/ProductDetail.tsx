@@ -133,14 +133,28 @@ const ProductDetail: React.FC = () => {
               >
                 Add to Cart
               </button>
-              <Link
-                to={`/booking?productId=${product.id}`}
-                className="flex-[2] bg-emerald-500 text-white py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-emerald-600 transition-all shadow-xl shadow-emerald-500/20"
-              >
-                Book Order / Enquire <ChevronRight size={20} />
-              </Link>
+              {product.isAvailable !== false ? (
+                <Link
+                  to={`/booking?productId=${product.id}`}
+                  className="flex-[2] bg-emerald-500 text-white py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-emerald-600 transition-all shadow-xl shadow-emerald-500/20"
+                >
+                  Book Order / Enquire <ChevronRight size={20} />
+                </Link>
+              ) : (
+                <button
+                  disabled
+                  className="flex-[2] bg-slate-200 text-slate-400 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 cursor-not-allowed"
+                >
+                  Out of Stock <ShieldCheck size={20} />
+                </button>
+              )}
             </div>
-            <p className="text-center text-slate-400 text-xs mt-4">Safe & Secure QR Payments. Satisfaction Guaranteed.</p>
+            {product.isAvailable === false && (
+              <p className="text-center text-red-500 text-sm font-bold mt-4">This product is currently out of stock. You can add it to your cart, but booking is temporarily unavailable.</p>
+            )}
+            {product.isAvailable !== false && (
+              <p className="text-center text-slate-400 text-xs mt-4">Safe & Secure QR Payments. Satisfaction Guaranteed.</p>
+            )}
           </div>
 
           <div className="grid grid-cols-3 gap-4 mb-10">

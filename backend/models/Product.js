@@ -8,6 +8,12 @@ const productSchema = new mongoose.Schema(
             trim: true
         },
 
+        brand: {
+            type: String,
+            required: false, // Optional for backward compatibility, though frontend requires it
+            trim: true
+        },
+
         description: {
             type: String,
             required: [true, "Product description is required"],

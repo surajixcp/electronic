@@ -57,7 +57,7 @@ export const addProductReview = async (req, res) => {
 
 export const getProducts = async (req, res) => {
     try {
-        const products = await Product.find({ isAvailable: true });
+        const products = await Product.find({}); // Fetch key, availability handled on frontend
         res.status(200).json(products);
     } catch (error) {
         res.status(500).json({ error: error.message });

@@ -220,6 +220,11 @@ const Shop: React.FC = () => {
                 }`}>
                 {product.condition}
               </div>
+              {product.isAvailable === false && (
+                <div className="absolute top-4 right-4 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl bg-red-500 text-white">
+                  Out of Stock
+                </div>
+              )}
             </Link>
 
             <div className="p-2 md:p-6 flex flex-col flex-1 space-y-2 md:space-y-4">

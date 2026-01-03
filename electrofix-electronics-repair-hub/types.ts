@@ -49,6 +49,10 @@ export interface Product {
   reviews: Review[];
   rating: number;
   reviewCount: number;
+  originalPrice?: number;
+  discount?: number;
+  stock?: number;
+  isAvailable?: boolean;
 }
 
 export interface RepairService {

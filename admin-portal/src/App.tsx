@@ -91,6 +91,7 @@ const AdminPortal: React.FC = () => {
   const [newProductPrice, setNewProductPrice] = useState('');
   const [newProductCategory, setNewProductCategory] = useState<ProductCategory | ''>('');
   const [newProductDescription, setNewProductDescription] = useState('');
+  const [newProductIsAvailable, setNewProductIsAvailable] = useState(true);
   const [imageInputMode, setImageInputMode] = useState<'upload' | 'url'>('upload');
   const [imageUrlInput, setImageUrlInput] = useState('');
 
@@ -263,14 +264,15 @@ const AdminPortal: React.FC = () => {
 
   const handleEditProduct = (product: Product) => {
     setEditingProduct(product);
-    setNewProductName(product.name);
-    setNewProductBrand(product.brand);
+    setNewProductName(product.name || '');
+    setNewProductBrand(product.brand || '');
     setNewProductCategory(product.category);
-    setNewProductDesc(product.description);
+    setNewProductDesc(product.description || '');
     setNewProductCondition(product.condition);
     setOriginalPrice(product.originalPrice || product.price);
     setDiscount(product.discount || 0);
-    setProductImages(product.images || []);
+    setProductImages(product.images && product.images.length > 0 ? product.images : []);
+    setNewProductIsAvailable(product.isAvailable !== undefined ? product.isAvailable : true);
     setNewProductSpecs(
       product.specs
         ? Object.entries(product.specs).map(([key, value]) => ({ key, value: String(value) }))
@@ -348,8 +350,8 @@ const AdminPortal: React.FC = () => {
 
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newProductName || !newProductBrand || productImages.length === 0) {
-      alert('Please fill all required fields and add at least one image.');
+    if (!newProductName || productImages.length === 0) {
+      alert('Please fill all required fields (Name, Images).');
       return;
     }
 
@@ -375,7 +377,7 @@ const AdminPortal: React.FC = () => {
       specs: specsObject,
       condition: newProductCondition,
       stock: 50,
-      isAvailable: true,
+      isAvailable: newProductIsAvailable,
       warranty: '1 Year',
       featured: false
     };
@@ -1392,6 +1394,31 @@ const AdminPortal: React.FC = () => {
                         {cond}
                       </button>
                     ))}
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Availability Status</label>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setNewProductIsAvailable(true)}
+                      className={`flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all border-2 ${newProductIsAvailable
+                        ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20'
+                        : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-400 hover:border-emerald-500/50'
+                        }`}
+                    >
+                      In Stock
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setNewProductIsAvailable(false)}
+                      className={`flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all border-2 ${!newProductIsAvailable
+                        ? 'bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/20'
+                        : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-400 hover:border-red-500/50'
+                        }`}
+                    >
+                      Out of Stock
+                    </button>
                   </div>
                 </div>
                 <div className="flex gap-4 pt-6">

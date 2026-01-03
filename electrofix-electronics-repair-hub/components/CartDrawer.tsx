@@ -39,8 +39,13 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
     }).filter(item => item.product);
 
     const totalAmount = enrichedCart.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0);
+    const hasOutOfStockItems = enrichedCart.some(item => item.product?.isAvailable === false);
 
     const handleCheckout = () => {
+        if (hasOutOfStockItems) {
+            alert("Please remove out of stock items before proceeding.");
+            return;
+        }
         onClose();
         navigate('/booking?mode=cart');
     };
@@ -67,9 +72,14 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                 <div className="flex-1 overflow-y-auto p-6 space-y-6">
                     {enrichedCart.length > 0 ? (
                         enrichedCart.map(({ product, quantity }) => (
-                            <div key={product!.id} className="flex gap-4 group">
-                                <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-xl overflow-hidden shrink-0">
+                            <div key={product!.id} className={`flex gap-4 group ${product?.isAvailable === false ? 'opacity-70 grayscale' : ''}`}>
+                                <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-xl overflow-hidden shrink-0 relative">
                                     <img src={product!.images[0]} alt={product!.name} className="w-full h-full object-cover" />
+                                    {product?.isAvailable === false && (
+                                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                            <span className="text-[10px] font-bold text-white uppercase tracking-wider text-center px-1">Out of Stock</span>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <h3 className="font-bold text-slate-900 dark:text-white truncate">{product!.name}</h3>
@@ -98,6 +108,9 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                                             <Trash2 size={16} />
                                         </button>
                                     </div>
+                                    {product?.isAvailable === false && (
+                                        <p className="text-xs text-red-500 font-bold mt-1">Remove to checkout</p>
+                                    )}
                                 </div>
                                 <div className="font-bold text-right">
                                     ₹{product!.price * quantity}
@@ -123,9 +136,13 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                         </div>
                         <button
                             onClick={handleCheckout}
-                            className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-black text-lg shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all flex items-center justify-center gap-2"
+                            disabled={hasOutOfStockItems}
+                            className={`w-full py-4 rounded-2xl font-black text-lg shadow-lg transition-all flex items-center justify-center gap-2 ${hasOutOfStockItems
+                                ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none'
+                                : 'bg-emerald-500 text-white shadow-emerald-500/20 hover:bg-emerald-600'
+                                }`}
                         >
-                            Checkout Now <ArrowRight size={20} />
+                            {hasOutOfStockItems ? 'Remove OOS Items' : 'Checkout Now'} {hasOutOfStockItems ? <X size={20} /> : <ArrowRight size={20} />}
                         </button>
                         <button
                             onClick={clearCart}
