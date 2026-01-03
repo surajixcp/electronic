@@ -84,6 +84,7 @@ export interface CartItem {
 export interface Booking {
   id: string;
   userId?: string; // Optional for guest checkouts, required for logged in users
+  user?: any; // To handle populated user object or ID string from backend
   customerName: string;
   mobile: string;
   email?: string;

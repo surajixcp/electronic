@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User as UserIcon, Mail, Smartphone, MapPin, LogOut, Save, ShieldCheck, ClipboardList } from 'lucide-react';
 import { getAppState, logoutUser, updateUserProfile } from '../services/storage';
+import { BookingStatus } from '../types';
 
 const Profile: React.FC = () => {
   const { currentUser, bookings } = getAppState();
@@ -41,7 +42,10 @@ const Profile: React.FC = () => {
     navigate('/');
   };
 
-  const userBookings = bookings.filter(b => b.userId === currentUser.id);
+  const userBookings = bookings.filter(b => {
+    const ownerId = b.userId || (typeof b.user === 'string' ? b.user : (b.user as any)?._id || (b.user as any)?.id);
+    return ownerId === currentUser.id;
+  });
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">
@@ -71,7 +75,7 @@ const Profile: React.FC = () => {
             <div className="grid grid-cols-2 gap-4 mb-8">
               <div className="bg-slate-50 p-4 rounded-2xl">
                 <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Orders</p>
-                <p className="text-xl font-black text-slate-900">{userBookings.length}</p>
+                <p className="text-xl font-black text-slate-900">{userBookings.filter(b => b.status?.toLowerCase() === 'delivered' || b.status?.toLowerCase() === 'completed').length}</p>
               </div>
               <div className="bg-slate-50 p-4 rounded-2xl">
                 <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Status</p>

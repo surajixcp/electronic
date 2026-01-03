@@ -26,6 +26,7 @@ app.use("/api/order", orderRoutes);
 app.use("/api/service", serviceRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/settings", (await import("./routes/Setting.js")).default);
 
 app.get("/", (req, res) => {
   res.send("E-Commerce Backend Running 🚀");

@@ -28,7 +28,7 @@ import {
   ReceiptText
 } from 'lucide-react';
 import { subscribe, getAppState, saveAppState, updateBookingStatus, logoutUser, updateUserProfile, fetchInitialData, uploadUserAvatar, createServiceApi, deleteServiceApi, updateServiceApi, fetchServicesFromApi, addProduct, updateProduct, deleteProduct, fetchProductsFromApi, deleteBooking, verifyOrderPayment, uploadOrderInvoice, fetchUsersFromApi } from './services/storage';
-import { BASE_URL } from './services/api';
+import api, { BASE_URL } from './services/api';
 import { BookingStatus, type Product, type RepairService, ProductCondition, ProductCategory } from './types';
 import Login from './Login';
 
@@ -253,6 +253,16 @@ const AdminPortal: React.FC = () => {
     setState(newState);
     saveAppState(newState);
     setIsEditingUpi(false);
+
+    // Sync to Backend
+    api.put('/settings', {
+      key: 'upi_config',
+      value: {
+        upiId: tempUpiId,
+        qrCodeUrl: qrUrl,
+        isQrEnabled: state.isQrEnabled // Preserve current toggle state
+      }
+    }).catch(console.error);
   };
 
   const handleExportCSV = () => {
@@ -568,6 +578,16 @@ const AdminPortal: React.FC = () => {
     const newState = { ...state, isQrEnabled: !state.isQrEnabled };
     setState(newState);
     saveAppState(newState);
+
+    // Sync to Backend
+    api.put('/settings', {
+      key: 'upi_config',
+      value: {
+        upiId: newState.upiId || 'shop@upi',
+        qrCodeUrl: newState.qrCodeUrl,
+        isQrEnabled: newState.isQrEnabled
+      }
+    }).catch(console.error);
   };
 
   if (!state.currentUser) {

@@ -67,10 +67,11 @@ export const saveAppState = (state: AppState) => {
 export const fetchInitialData = async () => {
     try {
         const token = getAppState().token || localStorage.getItem('token');
-        const [productsRes, bookingsRes, servicesRes] = await Promise.all([
+        const [productsRes, bookingsRes, servicesRes, settingsRes] = await Promise.all([
             api.get('/product'),
             token ? api.get('/order').catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
-            api.get('/service').catch(() => ({ data: [] }))
+            api.get('/service').catch(() => ({ data: [] })),
+            api.get('/settings').catch(() => ({ data: {} }))
         ]);
 
         const state = getAppState();
@@ -92,6 +93,15 @@ export const fetchInitialData = async () => {
                 ...s,
                 id: s._id || s.id
             }));
+        }
+
+        // Process Settings
+        if (settingsRes.data && settingsRes.data.upi_config) {
+            state.upiId = settingsRes.data.upi_config.upiId || state.upiId;
+            state.qrCodeUrl = settingsRes.data.upi_config.qrCodeUrl || state.qrCodeUrl;
+            if (settingsRes.data.upi_config.isQrEnabled !== undefined) {
+                state.isQrEnabled = settingsRes.data.upi_config.isQrEnabled;
+            }
         }
 
         saveAppState(state);

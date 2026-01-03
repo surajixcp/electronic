@@ -157,6 +157,20 @@ export const fetchInitialData = async () => {
       // state.bookings = []; // Preserve existing? No, initial fetch should overwrite
     }
 
+    // Fetch Global Settings (UPI / QR)
+    try {
+      const settingsRes = await api.get('/settings');
+      if (settingsRes.data && settingsRes.data.upi_config) {
+        state.qrCodeUrl = settingsRes.data.upi_config.qrCodeUrl || state.qrCodeUrl;
+        // Check for isQrEnabled explicitly
+        if (settingsRes.data.upi_config.isQrEnabled !== undefined) {
+          state.isQrEnabled = settingsRes.data.upi_config.isQrEnabled;
+        }
+      }
+    } catch (e) {
+      console.error("Settings fetch failed", e);
+    }
+
     // Fetch Cart if logged in
     if (state.token) {
       state.cart = await fetchCartApi();
