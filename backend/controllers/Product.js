@@ -27,6 +27,34 @@ export const addProduct = async (req, res) => {
     }
 };
 
+export const addProductReview = async (req, res) => {
+    try {
+        const { rating, comment, userName, userAvatar } = req.body;
+        const product = await Product.findById(req.params.id);
+
+        if (product) {
+            const review = {
+                user: req.user._id,
+                userName: userName || req.user.fullname,
+                userAvatar,
+                rating: Number(rating),
+                comment,
+            };
+
+            product.reviews.push(review);
+            product.reviewCount = product.reviews.length;
+            product.rating = product.reviews.reduce((acc, item) => item.rating + acc, 0) / product.reviews.length;
+
+            await product.save();
+            res.status(201).json({ message: 'Review added' });
+        } else {
+            res.status(404).json({ error: 'Product not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 export const getProducts = async (req, res) => {
     try {
         const products = await Product.find({ isAvailable: true });

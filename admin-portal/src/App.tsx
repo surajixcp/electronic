@@ -492,7 +492,7 @@ const AdminPortal: React.FC = () => {
           <div className="flex items-center gap-3">
             <div className="relative">
               <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
-                <img src={state.currentUser?.avatar || "https://i.pravatar.cc/100?u=admin"} alt="Admin" />
+                <img src={state.currentUser?.avatar ? (state.currentUser.avatar.startsWith('http') ? state.currentUser.avatar : `http://localhost:5000${state.currentUser.avatar}`) : "https://i.pravatar.cc/100?u=admin"} alt="Admin" />
               </div>
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-[#111827] rounded-full"></div>
             </div>
@@ -1018,7 +1018,7 @@ const AdminPortal: React.FC = () => {
 
               <div className="relative group shrink-0">
                 <div className="w-40 h-40 rounded-full overflow-hidden bg-white dark:bg-slate-800 ring-4 ring-white dark:ring-slate-900 shadow-2xl relative z-10">
-                  <img src={state.currentUser?.avatar || "https://i.pravatar.cc/100?u=admin"} alt="Profile" className="w-full h-full object-cover" />
+                  <img src={state.currentUser?.avatar ? (state.currentUser.avatar.startsWith('http') ? state.currentUser.avatar : `http://localhost:5000${state.currentUser.avatar}`) : "https://i.pravatar.cc/100?u=admin"} alt="Profile" className="w-full h-full object-cover" />
                 </div>
                 <label className="absolute inset-0 bg-slate-900/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer rounded-full z-20 backdrop-blur-sm">
                   <Upload className="text-white drop-shadow-lg" size={32} />

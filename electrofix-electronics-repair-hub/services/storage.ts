@@ -270,12 +270,37 @@ export const logoutUser = () => {
   saveAppState(memoryState);
 };
 
-export const updateUserProfile = (userData: Partial<User>) => {
+export const updateUserProfile = async (userData: Partial<User>) => {
   const state = getAppState();
+
+  if (state.token) {
+    try {
+      const res = await api.put('/auth/profile', userData);
+      if (res.data.success) {
+        // Merge response user (which might have avatar/updated fields)
+        const newItem = { ...state.currentUser, ...res.data.user };
+        state.currentUser = newItem;
+
+        // Update in users array too if present
+        const userIndex = state.users.findIndex(u => u.id === state.currentUser?.id);
+        if (userIndex !== -1) {
+          state.users[userIndex] = newItem;
+        }
+        saveAppState(state);
+        return state.currentUser;
+      }
+    } catch (e) {
+      console.error("Update profile failed", e);
+      throw e;
+    }
+  }
+
+  // Fallback (e.g. offline or no auth implementation yet)
   if (state.currentUser) {
-    const userIndex = state.users.findIndex(u => u.id === state.currentUser?.id);
     const updatedUser = { ...state.currentUser, ...userData };
     state.currentUser = updatedUser;
+
+    const userIndex = state.users.findIndex(u => u.id === state.currentUser?.id);
     if (userIndex !== -1) {
       state.users[userIndex] = updatedUser;
     }
@@ -337,7 +362,7 @@ export const updateBookingStatus = (id: string, status: Booking['status']) => {
     saveAppState(state);
   }
 };
-export const addReview = (review: Review) => {
+export const addReview = async (review: Review) => {
   const state = getAppState();
   const productIndex = state.products.findIndex(p => p.id === review.productId);
 
@@ -351,6 +376,19 @@ export const addReview = (review: Review) => {
 
     state.products[productIndex] = product;
     saveAppState(state);
+
+    if (state.token) {
+      try {
+        await api.post(`/product/${review.productId}/reviews`, {
+          rating: review.rating,
+          comment: review.comment,
+          userName: review.userName,
+          userAvatar: review.userAvatar
+        });
+      } catch (e) {
+        console.error("Failed to add review", e);
+      }
+    }
   }
 };
 

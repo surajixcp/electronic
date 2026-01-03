@@ -102,8 +102,16 @@ const Navbar: React.FC = () => {
                       onClick={() => setIsProfileOpen(!isProfileOpen)}
                       className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 transition-all"
                     >
-                      <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md">
-                        {currentUser.name.charAt(0)}
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shadow-md overflow-hidden bg-emerald-500 text-white">
+                        {currentUser.avatar ? (
+                          <img
+                            src={currentUser.avatar.startsWith('http') ? currentUser.avatar : `http://localhost:5000${currentUser.avatar}`}
+                            alt={currentUser.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          currentUser.name.charAt(0)
+                        )}
                       </div>
                       <span className="font-bold text-sm hidden lg:block">{currentUser.name.split(' ')[0]}</span>
                       <ChevronDown size={16} className={`transition-transform duration-300 ${isProfileOpen ? 'rotate-180' : ''}`} />

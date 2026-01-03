@@ -4,7 +4,8 @@ import {
   updateProduct,
   deleteProduct,
   getProducts,
-  getProductById
+  getProductById,
+  addProductReview
 } from "../controllers/Product.js";
 
 import { protect } from "../middlewares/auth.js";
@@ -16,7 +17,10 @@ const router = express.Router();
 /* USER & ADMIN */
 /* USER & ADMIN */
 router.get("/", getProducts);
+// ...
+router.get("/", getProducts);
 router.get("/:id", getProductById);
+router.post("/:id/reviews", protect, addProductReview);
 
 /* ADMIN ONLY */
 router.post(

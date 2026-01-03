@@ -1,6 +1,6 @@
 import express from "express";
 import multer from "multer";
-import { register, login, sendForgotPasswordOTP, verifyOTP, resetPassword, uploadProfileImage } from "../controllers/User.js";
+import { register, login, sendForgotPasswordOTP, verifyOTP, resetPassword, uploadProfileImage, updateProfile } from "../controllers/User.js";
 import { protect } from "../middlewares/auth.js";
 import { authorize } from "../middlewares/Role.js";
 
@@ -23,5 +23,6 @@ router.post("/verify-otp", verifyOTP);
 router.post("/reset-password", resetPassword);
 
 router.post("/profile-image", protect, upload.single("avatar"), uploadProfileImage);
+router.put("/profile", protect, updateProfile);
 
 export default router;

@@ -45,12 +45,25 @@ const Profile: React.FC = () => {
         {/* Sidebar */}
         <div className="w-full md:w-80 shrink-0">
           <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden p-8 text-center">
-            <div className="w-32 h-32 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-5xl font-black shadow-xl shadow-emerald-500/20">
-              {currentUser.name.charAt(0)}
+            <div className={`w-32 h-32 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-5xl font-black shadow-xl shadow-emerald-500/20 overflow-hidden ${!currentUser.avatar && 'bg-emerald-500'}`}>
+              {currentUser.avatar ? (
+                <img
+                  src={currentUser.avatar.startsWith('http') ? currentUser.avatar : `http://localhost:5000${currentUser.avatar}`}
+                  alt={currentUser.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.parentElement?.classList.add('bg-emerald-500');
+                    e.currentTarget.parentElement!.innerHTML = currentUser.name.charAt(0);
+                  }}
+                />
+              ) : (
+                currentUser.name.charAt(0)
+              )}
             </div>
             <h2 className="text-2xl font-black text-slate-900 mb-1">{currentUser.name}</h2>
             <p className="text-slate-400 text-sm mb-8">{currentUser.email}</p>
-            
+
             <div className="grid grid-cols-2 gap-4 mb-8">
               <div className="bg-slate-50 p-4 rounded-2xl">
                 <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Orders</p>
@@ -62,7 +75,7 @@ const Profile: React.FC = () => {
               </div>
             </div>
 
-            <button 
+            <button
               onClick={handleLogout}
               className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl border border-red-100 text-red-600 font-bold hover:bg-red-50 transition-all"
             >
@@ -77,7 +90,7 @@ const Profile: React.FC = () => {
             <h3 className="text-2xl font-black text-slate-900 mb-8 flex items-center gap-3">
               <ShieldCheck className="text-emerald-500" /> Account Settings
             </h3>
-            
+
             <form onSubmit={handleUpdate} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
@@ -87,7 +100,7 @@ const Profile: React.FC = () => {
                     <input
                       type="text"
                       value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-slate-50 border border-transparent focus:bg-white focus:border-emerald-500 outline-none transition-all text-sm font-semibold"
                     />
                   </div>
@@ -99,7 +112,7 @@ const Profile: React.FC = () => {
                     <input
                       type="tel"
                       value={formData.mobile}
-                      onChange={(e) => setFormData({...formData, mobile: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
                       className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-slate-50 border border-transparent focus:bg-white focus:border-emerald-500 outline-none transition-all text-sm font-semibold"
                     />
                   </div>
@@ -125,7 +138,7 @@ const Profile: React.FC = () => {
                   <MapPin className="absolute left-4 top-4 text-slate-400" size={18} />
                   <textarea
                     value={formData.address}
-                    onChange={(e) => setFormData({...formData, address: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                     className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-slate-50 border border-transparent focus:bg-white focus:border-emerald-500 outline-none transition-all text-sm font-semibold h-32 resize-none"
                   ></textarea>
                 </div>
@@ -150,7 +163,7 @@ const Profile: React.FC = () => {
                 <h4 className="text-2xl font-black mb-2">Order Activity</h4>
                 <p className="text-slate-400 text-sm">You have {userBookings.length} total orders and repair requests.</p>
               </div>
-              <button 
+              <button
                 onClick={() => navigate('/orders')}
                 className="flex items-center gap-2 bg-emerald-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-emerald-600 transition-all"
               >
