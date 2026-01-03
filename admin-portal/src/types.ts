@@ -54,6 +54,7 @@ export interface RepairService {
     description: string;
     brand: string;
     image: string;
+    isAvailable?: boolean;
 }
 
 export const BookingStatus = {

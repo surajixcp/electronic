@@ -101,6 +101,7 @@ const AdminPortal: React.FC = () => {
   const [servicePrice, setServicePrice] = useState('');
   const [serviceCategory, setServiceCategory] = useState('');
   const [serviceDescription, setServiceDescription] = useState('');
+  const [serviceAvailable, setServiceAvailable] = useState(true);
   const [viewingPayment, setViewingPayment] = useState<any | null>(null);
 
   // UPI State
@@ -289,7 +290,7 @@ const AdminPortal: React.FC = () => {
     setServiceCategory(service.category);
     setServiceDescription(service.description);
     setServiceImage(service.image);
-    setServiceImage(service.image);
+    setServiceAvailable(service.isAvailable !== undefined ? service.isAvailable : true);
     setShowAddService(true);
   };
 
@@ -317,7 +318,8 @@ const AdminPortal: React.FC = () => {
       basePrice: parseFloat(servicePrice),
       category: serviceCategory,
       description: serviceDescription,
-      image: serviceImage
+      image: serviceImage,
+      isAvailable: serviceAvailable
     };
 
     let result;
@@ -1444,6 +1446,31 @@ const AdminPortal: React.FC = () => {
               </button>
               <h3 className="text-2xl lg:text-3xl font-black mb-6 lg:mb-8 dark:text-white">New Service Catalog Item</h3>
               <form className="space-y-6" onSubmit={handleSaveService}>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Availability Status</label>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setServiceAvailable(true)}
+                      className={`flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all border-2 ${serviceAvailable
+                        ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20'
+                        : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-400 hover:border-emerald-500/50'
+                        }`}
+                    >
+                      Available
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setServiceAvailable(false)}
+                      className={`flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all border-2 ${!serviceAvailable
+                        ? 'bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/20'
+                        : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-400 hover:border-red-500/50'
+                        }`}
+                    >
+                      Unavailable
+                    </button>
+                  </div>
+                </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Service Title</label>
                   <input

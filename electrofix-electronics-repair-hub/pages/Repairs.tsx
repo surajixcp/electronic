@@ -92,18 +92,29 @@ const Repairs: React.FC = () => {
           <h2 className="text-3xl font-black text-slate-900 mb-8">2. Common Fixes</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredServices.map((service) => (
-              <div key={service.id} className="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm hover:shadow-soft transition-all group">
+              <div key={service.id} className={`p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm transition-all group relative overflow-hidden ${service.isAvailable === false ? 'opacity-75' : 'hover:shadow-soft'}`}>
+                {service.isAvailable === false && (
+                  <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest py-1 px-3 rounded-bl-xl z-10">
+                    Unavailable
+                  </div>
+                )}
                 <div className="flex justify-between items-start mb-6">
                   <div className="bg-emerald-50 text-emerald-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">{service.category}</div>
                   <div className="text-3xl font-black text-slate-900">₹{service.basePrice}<span className="text-slate-400 text-xs font-normal">+</span></div>
                 </div>
                 <h3 className="text-xl font-black text-slate-900 mb-3 group-hover:text-emerald-500 transition-colors">{service.title}</h3>
-                <Link
-                  to={`/booking?serviceId=${service.id}`}
-                  className="w-full flex items-center justify-center gap-2 bg-slate-900 text-white py-4 rounded-2xl font-black hover:bg-emerald-500 transition-all shadow-lg hover:shadow-emerald-200"
-                >
-                  Book Repair Now <ChevronRight size={18} />
-                </Link>
+                {service.isAvailable === false ? (
+                  <button disabled className="w-full flex items-center justify-center gap-2 bg-slate-200 text-slate-400 py-4 rounded-2xl font-black cursor-not-allowed">
+                    Service Unavailable
+                  </button>
+                ) : (
+                  <Link
+                    to={`/booking?serviceId=${service.id}`}
+                    className="w-full flex items-center justify-center gap-2 bg-slate-900 text-white py-4 rounded-2xl font-black hover:bg-emerald-500 transition-all shadow-lg hover:shadow-emerald-200"
+                  >
+                    Book Repair Now <ChevronRight size={18} />
+                  </Link>
+                )}
               </div>
             ))}
           </div>

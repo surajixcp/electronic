@@ -16,7 +16,7 @@ export const getServices = async (req, res) => {
 // @route   POST /api/service
 // @access  Private (Admin)
 export const createService = async (req, res) => {
-    const { title, category, basePrice, description, brand, image } = req.body;
+    const { title, category, basePrice, description, brand, image, isAvailable } = req.body;
 
     if (!title || !basePrice) {
         return res.status(400).json({ message: "Title and Base Price are required" });
@@ -29,7 +29,8 @@ export const createService = async (req, res) => {
             basePrice,
             description,
             brand,
-            image
+            image,
+            isAvailable: isAvailable !== undefined ? isAvailable : true
         });
 
         const createdService = await service.save();
@@ -43,7 +44,7 @@ export const createService = async (req, res) => {
 // @route   PUT /api/service/:id
 // @access  Private (Admin)
 export const updateService = async (req, res) => {
-    const { title, category, basePrice, description, brand, image } = req.body;
+    const { title, category, basePrice, description, brand, image, isAvailable } = req.body;
 
     try {
         const service = await Service.findById(req.params.id);
@@ -55,6 +56,7 @@ export const updateService = async (req, res) => {
             service.description = description || service.description;
             service.brand = brand || service.brand;
             service.image = image || service.image;
+            if (isAvailable !== undefined) service.isAvailable = isAvailable;
 
             const updatedService = await service.save();
             res.json(updatedService);

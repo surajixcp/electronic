@@ -61,6 +61,9 @@ export interface RepairService {
   category: string;
   basePrice: number;
   description: string;
+  brand?: string;
+  image?: string;
+  isAvailable?: boolean;
 }
 
 export enum BookingStatus {

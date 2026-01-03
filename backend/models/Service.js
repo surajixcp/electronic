@@ -27,6 +27,10 @@ const serviceSchema = new mongoose.Schema(
         image: {
             type: String,
             default: ""
+        },
+        isAvailable: {
+            type: Boolean,
+            default: true
         }
     },
     { timestamps: true }
