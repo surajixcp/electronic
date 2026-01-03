@@ -29,7 +29,7 @@ import {
   X,
   ReceiptText
 } from 'lucide-react';
-import { subscribe, getAppState, saveAppState, updateBookingStatus, logoutUser, updateUserProfile, fetchInitialData, uploadUserAvatar, createServiceApi, deleteServiceApi, updateServiceApi, fetchServicesFromApi, addProduct, updateProduct, deleteProduct, fetchProductsFromApi, deleteBooking, verifyOrderPayment, uploadOrderInvoice } from './services/storage';
+import { subscribe, getAppState, saveAppState, updateBookingStatus, logoutUser, updateUserProfile, fetchInitialData, uploadUserAvatar, createServiceApi, deleteServiceApi, updateServiceApi, fetchServicesFromApi, addProduct, updateProduct, deleteProduct, fetchProductsFromApi, deleteBooking, verifyOrderPayment, uploadOrderInvoice, fetchUsersFromApi } from './services/storage';
 import { BookingStatus, type Product, type RepairService, ProductCondition, ProductCategory } from './types';
 import Login from './Login';
 
@@ -44,9 +44,82 @@ const AdminPortal: React.FC = () => {
   const [productImageMode, setProductImageMode] = useState<'upload' | 'url'>('upload');
   const [serviceImageMode, setServiceImageMode] = useState<'upload' | 'url'>('upload');
 
+  const [totalCustomers, setTotalCustomers] = useState(0);
+  const [analyticsTimeframe, setAnalyticsTimeframe] = useState<'week' | 'month'>('week');
+
+  const chartData = React.useMemo(() => {
+    const days = analyticsTimeframe === 'week' ? 7 : 30;
+    const data: { date: number; value: number }[] = [];
+    const now = new Date();
+
+    // Create buckets for last N days
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(now.getDate() - i);
+      d.setHours(0, 0, 0, 0);
+      data.push({ date: d.getTime(), value: 0 });
+    }
+
+    // Fill buckets
+    state.bookings.forEach((b: any) => {
+      // Assume b.createdAt is timestamp
+      const bDate = new Date(b.createdAt);
+      bDate.setHours(0, 0, 0, 0);
+      const dayTime = bDate.getTime();
+      const bucket = data.find(d => d.date === dayTime);
+      if (bucket) {
+        bucket.value += b.totalAmount || 0;
+      }
+    });
+
+    return data;
+  }, [state.bookings, analyticsTimeframe]);
+
+  const chartPath = React.useMemo(() => {
+    if (chartData.length < 2) return "M 0,300 L 1000,300";
+
+    const width = 1000;
+    const height = 300;
+    const maxVal = Math.max(...chartData.map(d => d.value), 1000); // Min max is 1000 so graph isn't flat 0 if empty
+
+    const relevantHeight = height - 20; // 20px padding top
+
+    const points = chartData.map((d, i) => {
+      const x = (i / (chartData.length - 1)) * width;
+      const y = height - ((d.value / maxVal) * relevantHeight);
+      return [x, y];
+    });
+
+    // Simple line for now (Bezier is complex to code inline accurately without lib)
+    // Actually, let's try a simple Catmull-Rom or similar if possible, or just Line
+    // Let's do straight lines for robustness, or simple Quadratic Bezier between points
+
+    let path = `M ${points[0][0]},${points[0][1]}`;
+    for (let i = 0; i < points.length - 1; i++) {
+      // Simple smoothing: use midpoint control
+      // path += ` L ${points[i+1][0]},${points[i+1][1]}`; 
+
+      // Let's try quadratic
+      const x_mid = (points[i][0] + points[i + 1][0]) / 2;
+      const y_mid = (points[i][1] + points[i + 1][1]) / 2;
+      const cp_x1 = (x_mid + points[i][0]) / 2;
+      const cp_x2 = (x_mid + points[i + 1][0]) / 2;
+
+      path += ` Q ${points[i + 1][0]},${points[i + 1][1]} ${points[i + 1][0]},${points[i + 1][1]}`; // Linear fallback effectively
+      // Actually for simplicity in this context, straight lines or standard L is safest visual
+    }
+    // Re-do with direct L for strict accuracy
+    path = `M ${points[0][0]},${points[0][1]}`;
+    points.slice(1).forEach(p => path += ` L ${p[0]},${p[1]}`);
+
+    return path;
+  }, [chartData]);
+
   // Fetch initial data
   React.useEffect(() => {
     fetchInitialData();
+    fetchUsersFromApi().then(users => setTotalCustomers(users.length));
+
     // Subscribe to storage changes
     const unsubscribe = subscribe(() => {
       setState({ ...getAppState() });
@@ -573,7 +646,7 @@ const AdminPortal: React.FC = () => {
                 { label: 'Settled Revenue', val: `₹${totalRevenue.toLocaleString()}`, sub: 'Lifetime sales', icon: <DollarSign className="text-emerald-500" />, bg: 'bg-emerald-500/10' },
                 { label: 'Pending Queue', val: pendingOrders.toString(), sub: 'Awaiting confirmation', icon: <Clock className="text-amber-500" />, bg: 'bg-amber-500/10' },
                 { label: 'Inventory Count', val: state.products.length.toString(), sub: 'Unique SKUs', icon: <Package className="text-blue-500" />, bg: 'bg-blue-500/10' },
-                { label: 'Customer Base', val: '1.2k', sub: 'Verified users', icon: <Users className="text-purple-500" />, bg: 'bg-purple-500/10' },
+                { label: 'Customer Base', val: totalCustomers.toString(), sub: 'Verified users', icon: <Users className="text-purple-500" />, bg: 'bg-purple-500/10' },
               ].map((stat, i) => (
                 <div key={i} className="bg-white dark:bg-[#111827] p-4 lg:p-8 rounded-2xl lg:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm relative overflow-hidden group hover:scale-[1.02] transition-transform">
                   <div className={`absolute -right-4 -top-4 w-24 h-24 ${stat.bg} rounded-full blur-2xl opacity-50 group-hover:opacity-100 transition-opacity`}></div>
@@ -591,33 +664,49 @@ const AdminPortal: React.FC = () => {
               ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2 bg-white dark:bg-[#111827] p-10 rounded-[3rem] border border-slate-100 dark:border-slate-800 relative overflow-hidden">
+            <div className="grid grid-cols-1">
+              <div className="bg-white dark:bg-[#111827] p-10 rounded-[3rem] border border-slate-100 dark:border-slate-800 relative overflow-hidden">
                 <div className="flex justify-between items-center mb-10">
                   <h3 className="text-xl font-black dark:text-white">Growth Analytics</h3>
                   <div className="flex gap-2">
-                    <button className="px-4 py-2 bg-slate-50 dark:bg-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500">7 Days</button>
-                    <button className="px-4 py-2 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">30 Days</button>
+                    <button
+                      onClick={() => setAnalyticsTimeframe('week')}
+                      className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors ${analyticsTimeframe === 'week' ? 'bg-emerald-500 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-500'}`}
+                    >
+                      7 Days
+                    </button>
+                    <button
+                      onClick={() => setAnalyticsTimeframe('month')}
+                      className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors ${analyticsTimeframe === 'month' ? 'bg-emerald-500 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-500'}`}
+                    >
+                      30 Days
+                    </button>
                   </div>
                 </div>
-                <div className="h-80 bg-slate-50 dark:bg-slate-800/30 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center p-8 text-center">
-                  <TrendingUp className="text-slate-300 mb-4" size={48} />
-                  <p className="text-slate-400 font-bold italic">Visual Data Streams Processing...</p>
-                </div>
-              </div>
-
-              <div className="bg-slate-900 rounded-[3rem] p-10 text-white flex flex-col justify-between relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl -mr-24 -mt-24"></div>
-                <div className="space-y-6">
-                  <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                    <Zap size={28} />
+                <div className="h-96 w-full relative">
+                  {/* Custom SVG Line Chart */}
+                  <div className="absolute inset-0 flex flex-col justify-between text-xs font-bold text-slate-300 pl-8 pb-8 z-10 pointer-events-none">
+                    {[100, 75, 50, 25, 0].map(pct => (
+                      <div key={pct} className="border-b border-dashed border-slate-100 dark:border-slate-800 w-full h-full flex items-end">
+                        {/* Dynamic Y-Axis Labels could go here if we calculated max revenue */}
+                      </div>
+                    ))}
                   </div>
-                  <h3 className="text-3xl font-black tracking-tighter">Business Health <br /><span className="text-emerald-500">Excellent</span></h3>
-                  <p className="text-slate-400 text-sm leading-relaxed font-bold">Your repair success rate is up by 14.5% this week. Customer satisfaction is at a record high.</p>
+                  <svg className="absolute inset-0 w-full h-full pl-8 pb-8 overflow-visible" viewBox="0 0 1000 300" preserveAspectRatio="none">
+                    <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity="0.2" />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+                    </linearGradient>
+                    <path d={`${chartPath} L 1000,300 L 0,300 Z`} fill="url(#chartGradient)" />
+                    <path d={chartPath} fill="none" stroke="#10b981" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  {/* X-Axis Labels */}
+                  <div className="absolute bottom-0 left-8 right-0 flex justify-between text-[10px] font-bold text-slate-400 pt-2">
+                    {chartData.filter((_, i) => i % (analyticsTimeframe === 'week' ? 1 : 4) === 0).map((d, i) => (
+                      <span key={i}>{new Date(d.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</span>
+                    ))}
+                  </div>
                 </div>
-                <button className="mt-12 w-full py-5 bg-white text-slate-900 rounded-2xl font-black hover:bg-emerald-500 hover:text-white transition-all shadow-2xl">
-                  Generate Report
-                </button>
               </div>
             </div>
           </div>

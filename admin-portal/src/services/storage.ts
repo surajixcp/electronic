@@ -372,3 +372,16 @@ export const uploadOrderInvoice = async (id: string, file: File) => {
     }
     return null;
 };
+
+export const fetchUsersFromApi = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return [];
+
+    try {
+        const response = await api.get('/auth/users');
+        return response.data;
+    } catch (error) {
+        console.error('Failed to fetch users', error);
+        return [];
+    }
+};

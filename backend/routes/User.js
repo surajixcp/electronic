@@ -1,6 +1,6 @@
 import express from "express";
 import multer from "multer";
-import { register, login, sendForgotPasswordOTP, verifyOTP, resetPassword, uploadProfileImage, updateProfile } from "../controllers/User.js";
+import { register, login, sendForgotPasswordOTP, verifyOTP, resetPassword, uploadProfileImage, updateProfile, getAllUsers } from "../controllers/User.js";
 import { protect } from "../middlewares/auth.js";
 import { authorize } from "../middlewares/Role.js";
 
@@ -16,6 +16,8 @@ router.get(
         res.json({ message: "Admin access granted" });
     }
 );
+
+router.get("/users", protect, authorize("Admin"), getAllUsers);
 // ... existing routes
 router.post("/login", login);
 router.post("/send-forgot-password-otp", sendForgotPasswordOTP);
