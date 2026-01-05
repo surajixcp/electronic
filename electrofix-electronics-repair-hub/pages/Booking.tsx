@@ -140,60 +140,60 @@ const Booking: React.FC = () => {
             </div>
 
             {step === 1 ? (
-              <form onSubmit={handleSubmitDetails} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700">Full Name *</label>
+              <form onSubmit={handleSubmitDetails} className="space-y-4 md:space-y-6">
+                <div className="grid grid-cols-2 gap-3 md:gap-6">
+                  <div className="space-y-1 md:space-y-2">
+                    <label className="text-[10px] md:text-sm font-bold text-slate-700 uppercase tracking-wider">Full Name *</label>
                     <input
                       required
                       type="text"
                       placeholder="John Doe"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
+                      className="w-full px-3 py-2 md:px-4 md:py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-slate-900 font-bold text-xs md:text-base placeholder:text-slate-400"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700">Mobile Number *</label>
+                  <div className="space-y-1 md:space-y-2">
+                    <label className="text-[10px] md:text-sm font-bold text-slate-700 uppercase tracking-wider">Mobile Number *</label>
                     <input
                       required
                       type="tel"
-                      placeholder="+91 98765 43210"
+                      placeholder="+91..."
                       value={formData.mobile}
                       onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
+                      className="w-full px-3 py-2 md:px-4 md:py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-slate-900 font-bold text-xs md:text-base placeholder:text-slate-400"
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">Email Address (Optional)</label>
+                <div className="space-y-1 md:space-y-2">
+                  <label className="text-[10px] md:text-sm font-bold text-slate-700 uppercase tracking-wider">Email Address (Optional)</label>
                   <input
                     type="email"
                     placeholder="john@example.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
+                    className="w-full px-3 py-2 md:px-4 md:py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-slate-900 font-bold text-xs md:text-base placeholder:text-slate-400"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">Delivery / Pickup Address *</label>
+                <div className="space-y-1 md:space-y-2">
+                  <label className="text-[10px] md:text-sm font-bold text-slate-700 uppercase tracking-wider">Delivery / Pickup Address *</label>
                   <textarea
                     required
                     rows={3}
                     placeholder="Flat No, Building, Street, City, Pincode"
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all resize-none"
+                    className="w-full px-3 py-2 md:px-4 md:py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all resize-none text-slate-900 font-bold text-xs md:text-base placeholder:text-slate-400"
                   ></textarea>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">Additional Notes</label>
+                <div className="space-y-1 md:space-y-2">
+                  <label className="text-[10px] md:text-sm font-bold text-slate-700 uppercase tracking-wider">Additional Notes</label>
                   <textarea
                     rows={2}
                     placeholder="Any specific requests or instructions..."
                     value={formData.notes}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all resize-none"
+                    className="w-full px-3 py-2 md:px-4 md:py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all resize-none text-slate-900 font-bold text-xs md:text-base placeholder:text-slate-400"
                   ></textarea>
                 </div>
                 <button
