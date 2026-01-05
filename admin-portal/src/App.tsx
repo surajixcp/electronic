@@ -1477,7 +1477,7 @@ const AdminPortal: React.FC = () => {
                   </div>
                   <div className="space-y-3">
                     {newProductSpecs.map((spec, index) => (
-                      <div key={`${index}-${spec.key || 'new'}`} className="flex gap-3">
+                      <div key={index} className="flex gap-3">
                         <input
                           type="text"
                           placeholder="Feature"
@@ -1537,18 +1537,15 @@ const AdminPortal: React.FC = () => {
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
-                    <select
-                      value={newProductCategory}
-                      onChange={(e) => setNewProductCategory(e.target.value as ProductCategory)}
-                      className="w-full px-6 py-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 font-bold outline-none dark:text-white"
-                    >
-                      {Object.values(ProductCategory).map((cat) => (
-                        <option key={cat} value={cat}>{cat}</option>
-                      ))}
-                    </select>
-                  </div>
+                  <select
+                    value={newProductCategory}
+                    onChange={(e) => setNewProductCategory(e.target.value as ProductCategory)}
+                    className="w-full px-6 py-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 font-bold outline-none dark:text-white"
+                  >
+                    {Object.values(ProductCategory).map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="space-y-3">
